@@ -1,0 +1,635 @@
+# 本ファイル編集後に、以下コマンドで型定義ファイルの再生成が必要です。
+# npx openapi-typescript ./docs/openapi.yml -o ./docs/openapi.d.ts
+openapi: 3.1.1
+info:
+  title: fishing-log-bot API定義書
+  description: |
+    fishing-log-bot のAPI定義書です。
+    認証機能は未実装のため、全エンドポイントは個人利用の単一ユーザー（固定ID）を前提としています。
+  version: 1.0.0
+
+components:
+  schemas:
+    UploadFileMetadata:
+      type: object
+      description: アップロード対象ファイルのメタ情報
+      required:
+        - fileName
+        - contentType
+      properties:
+        fileName:
+          description: "アップロードするファイル名"
+          type: string
+          example: "IMG_0001.jpg"
+        contentType:
+          description: "MIMEタイプ"
+          type: string
+          example: "image/jpeg"
+
+    PresignedUrlItem:
+      type: object
+      description: 発行されたPre-signed URL 1件分
+      properties:
+        fileName:
+          description: "元のファイル名"
+          type: string
+          example: "IMG_0001.jpg"
+        uploadUrl:
+          description: "S3へのPUT用署名付きURL（有効期限15分）"
+          type: string
+          example: "https://fishing-log-photo-bucket.s3.amazonaws.com/raw-contents/xxxx.jpg?signature=..."
+        s3Path:
+          description: "アップロード後、釣果登録APIのphotoKeysに指定するS3オブジェクトキー"
+          type: string
+          example: "raw-contents/ec00689e-3998-4df0-ae3e-416b052fafbd.jpg"
+
+    TimelineItem:
+      type: object
+      description: 釣果タイムライン項目（仕掛け情報はフラットに保持する）
+      required:
+        - id
+        - date
+        - fishType
+      properties:
+        id:
+          description: "タイムライン項目ID"
+          type: string
+          format: uuid
+        date:
+          description: "ヒット日時（ISO 8601形式）"
+          type: string
+          format: date-time
+          example: "2026-07-15T05:40:00+09:00"
+        fishType:
+          description: "魚種"
+          type: string
+          example: "アジ"
+        size:
+          description: "魚体サイズ（cm）"
+          type: string
+          example: "20"
+        rigType:
+          description: "仕掛けの種類"
+          type: string
+          example: "サビキ"
+        weight:
+          description: "仕掛け重量"
+          type: string
+          example: "15g"
+        hookSize:
+          description: "フックサイズ"
+          type: string
+          example: "アジ針8号"
+
+    Point:
+      type: object
+      description: 釣行時に指定するポイント情報。既存ポイントの場合はcodeのみ、新規ポイントの場合はcode="other"とcustomNameを指定
+      required:
+        - code
+      properties:
+        code:
+          description: "既存ポイントのID、または新規登録を表す固定値 \"other\""
+          type: string
+          example: "other"
+        customName:
+          description: "codeが\"other\"の場合の新しいポイント名。それ以外はnull"
+          type: string
+          nullable: true
+          example: "泉佐野食品コンビナート"
+
+    FishingReport:
+      type: object
+      description: 釣果レポート（登録リクエスト・一覧/詳細レスポンスで共通利用）
+      required:
+        - time
+        - photoKeys
+        - point
+        - fishTimeline
+        - memo
+      properties:
+        userId:
+          description: "ユーザーID（レスポンスのみ。現状は固定値 \"default-user\"）"
+          type: string
+          example: "default-user"
+        reportId:
+          description: "釣果レポートID（レスポンスのみ）"
+          type: string
+          format: uuid
+        pointId:
+          description: "釣行ポイントID（レスポンスのみ。登録時にpoint.codeから解決される）"
+          type: string
+          format: uuid
+        time:
+          type: object
+          required: [start, end]
+          properties:
+            start:
+              description: "釣行開始日時（ISO 8601形式）"
+              type: string
+              format: date-time
+              example: "2026-07-15T05:15:00+09:00"
+            end:
+              description: "釣行終了日時（ISO 8601形式）"
+              type: string
+              format: date-time
+              example: "2026-07-15T11:45:00+09:00"
+        photoKeys:
+          description: "釣果写真のS3オブジェクトキー一覧（空配列許容）"
+          type: array
+          items:
+            type: string
+          example: ["raw-contents/ec00689e-3998-4df0-ae3e-416b052fafbd.jpg"]
+        point:
+          $ref: '#/components/schemas/Point'
+        fishTimeline:
+          description: "釣果タイムラインリスト（空配列許容）"
+          type: array
+          items:
+            $ref: '#/components/schemas/TimelineItem'
+        memo:
+          description: "備考・メモ"
+          type: string
+          example: "早朝は風が強かったが、潮の動きに合わせてチヌがヒット。"
+
+    MyPoint:
+      type: object
+      description: 釣行ポイント情報
+      required:
+        - pointId
+        - pointName
+        - createdAt
+      properties:
+        pointId:
+          type: string
+          format: uuid
+        pointName:
+          type: string
+          example: "りんくうタウン"
+        description:
+          description: "ポイントの説明"
+          type: string
+          nullable: true
+        address:
+          description: "住所（ジオコーディング/リバースジオコーディングで取得）"
+          type: string
+          nullable: true
+        latitude:
+          description: "緯度（未登録の場合は省略）"
+          type: number
+          nullable: true
+        longitude:
+          description: "経度（未登録の場合は省略）"
+          type: number
+          nullable: true
+        createdAt:
+          description: "作成日時（Unix時間・ミリ秒）"
+          type: number
+        updatedAt:
+          description: "更新日時（Unix時間・ミリ秒）"
+          type: number
+          nullable: true
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Invalid request payload structure"
+
+paths:
+  /presigned-url:
+    post:
+      tags: [Photo]
+      summary: 写真アップロード用Pre-signed URL発行
+      description: 釣果写真をS3へ直接アップロードするための署名付きURLを、複数ファイル分まとめて発行する。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [files]
+              properties:
+                files:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/UploadFileMetadata'
+      responses:
+        '200':
+          description: 発行成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  urls:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PresignedUrlItem'
+        '400':
+          description: 不正リクエスト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /photo-url:
+    post:
+      tags: [Photo]
+      summary: 写真閲覧用Pre-signed URL発行
+      description: 保存済みの釣果写真を表示するための、読み取り専用の署名付きURLを発行する。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [keys]
+              properties:
+                keys:
+                  description: "S3オブジェクトキーのリスト"
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: 発行成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  urls:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                        url:
+                          type: string
+        '400':
+          description: 不正リクエスト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /catches:
+    post:
+      tags: [Report]
+      summary: 釣果レポート登録
+      description: |
+        釣果レポートを1件登録する。
+
+        point.codeが"other"の場合、point.customNameで指定された新しいポイントを
+        MyPointsTableに登録し、発行されたpointIdをこのレポートに紐付ける。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FishingReport'
+      responses:
+        '200':
+          description: 登録成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reportId:
+                    type: string
+                    format: uuid
+                  pointId:
+                    type: string
+                    format: uuid
+        '400':
+          description: 不正リクエスト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    get:
+      tags: [Report]
+      summary: 釣果レポート一覧取得
+      description: |
+        釣果レポートを、釣行開始日時が新しい順に一覧取得する。
+
+        pointIdが指定された場合は、該当ポイントの釣果のみに絞り込む（GSI: PointIndex使用）。
+      parameters:
+        - name: pointId
+          in: query
+          description: 釣行ポイントIDによる絞り込み
+          schema:
+            type: string
+            format: uuid
+        - name: startDate
+          in: query
+          description: 釣行開始日時の範囲指定（開始側、YYYY-MM-DD）
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          description: 釣行開始日時の範囲指定（終了側、YYYY-MM-DD）
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: 釣果レポート一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reports:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FishingReport'
+        '400':
+          description: 不正リクエスト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /points:
+    get:
+      tags: [Point]
+      summary: 釣行ポイント一覧取得
+      description: 登録済みの釣行ポイントを全件取得する。
+      responses:
+        '200':
+          description: ポイント一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  points:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MyPoint'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /points/{pointId}:
+    put:
+      tags: [Point]
+      summary: 釣行ポイント更新・新規登録
+      description: 指定したpointIdのポイント情報を更新する。pointIdが未登録の場合は新規作成される（Upsert）。
+      parameters:
+        - name: pointId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [pointName]
+              properties:
+                pointName:
+                  type: string
+                description:
+                  type: string
+                address:
+                  type: string
+                latitude:
+                  type: number
+                longitude:
+                  type: number
+      responses:
+        '200':
+          description: 更新・登録成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  point:
+                    $ref: '#/components/schemas/MyPoint'
+        '400':
+          description: 不正リクエスト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /tide:
+    get:
+      tags: [Environment]
+      summary: 潮汐情報取得
+      description: 指定した緯度経度から最寄りの港を判定し、tide736.netの潮汐データを取得する。
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: lng
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: date
+          in: query
+          required: true
+          description: "YYYY-MM-DD形式"
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: 潮汐情報
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  harborName:
+                    type: string
+                    example: "大阪北港"
+                  distanceKm:
+                    type: number
+                    example: 3.2
+                  sun:
+                    type: object
+                    properties:
+                      rise:
+                        type: string
+                      set:
+                        type: string
+                  moon:
+                    type: object
+                    properties:
+                      title:
+                        type: string
+                        example: "中潮"
+                      age:
+                        type: string
+                  ebb:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        time: { type: string }
+                        unixMs: { type: number }
+                        cm: { type: number }
+                  flood:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        time: { type: string }
+                        unixMs: { type: number }
+                        cm: { type: number }
+                  chart:
+                    description: "時系列の潮位データ（グラフ描画用）"
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        time: { type: string }
+                        unixMs: { type: number }
+                        cm: { type: number }
+        '400':
+          description: 不正リクエスト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 対象日の潮汐データなし
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: 外部API（tide736.net）呼び出し失敗
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /advice:
+    post:
+      tags: [AI]
+      summary: AIアドバイス生成
+      description: 釣果・天気・潮汐データをもとに、Anthropic Claude APIで釣行アドバイスを生成する。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [pointName, fishTimeline, memo]
+              properties:
+                pointName:
+                  type: string
+                fishTimeline:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/TimelineItem'
+                memo:
+                  type: string
+                weather:
+                  type: object
+                  properties:
+                    temperature: { type: number }
+                    humidity: { type: number }
+                    windSpeed: { type: number }
+                tide:
+                  type: object
+                  properties:
+                    moonTitle: { type: string }
+                    flood:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          time: { type: string }
+                          cm: { type: number }
+                    ebb:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          time: { type: string }
+                          cm: { type: number }
+      responses:
+        '200':
+          description: 生成成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  advice:
+                    type: string
+                    example: "早朝の下げ潮が功を奏しました。次回は風対策としてウキ止めの形状を見直すのも良いでしょう。"
+        '400':
+          description: 不正リクエスト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: 外部API（Anthropic Claude API）呼び出し失敗
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'

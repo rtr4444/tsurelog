@@ -1,0 +1,92 @@
+.list-container {
+  max-width: 480px;
+  margin: 80px auto 0;
+  padding: 0 16px 16px;
+}
+
+/* 幅が足りない時は折り返さず横スクロールにして「1段」を維持 */
+.report-list-filter-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+
+.report-list-filter-area > select,
+.report-list-filter-area > input {
+  flex-shrink: 0;
+}
+
+.report-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.report-card {
+  display: flex;
+  gap: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+}
+
+.report-card-thumbnail {
+  flex-shrink: 0;
+  width: 96px;
+  height: 96px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #eee;
+}
+
+.report-thumbnail-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 写真がない場合のプレースホルダー（斜線模様） */
+.report-thumbnail-placeholder {
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(45deg, #e0e0e0, #e0e0e0 6px, #f5f5f5 6px, #f5f5f5 12px);
+}
+
+.report-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.report-card-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.report-fish-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.fish-tag {
+  background: #eef6ff;
+  border-radius: 12px;
+  padding: 2px 10px;
+  font-size: 0.85rem;
+}
+
+.report-memo {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.error-message {
+  color: #c0392b;
+}

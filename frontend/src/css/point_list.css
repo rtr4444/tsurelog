@@ -1,0 +1,58 @@
+.point-list-container {
+  max-width: 480px;
+  margin: 80px auto 0;
+  padding: 0 16px 16px;
+}
+
+.point-list-header-area {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.point-search-input {
+  flex: 1;
+}
+
+.btn-add-point {
+  white-space: nowrap;
+}
+
+.point-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.point-card {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.point-card-header {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.point-description,
+.point-address,
+.point-latlng {
+  font-size: 0.85rem;
+  color: #555;
+  margin: 2px 0;
+}
+
+.point-latlng-missing {
+  color: #c0392b;
+  font-weight: bold;
+}
+
+.error-message {
+  color: #c0392b;
+}

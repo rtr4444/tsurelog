@@ -1,0 +1,159 @@
+.report-detail-container {
+  max-width: 480px;
+  margin: 80px auto 0;
+  padding: 0 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.report-detail-date {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.photo-carousel-main {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.photo-carousel-thumbnails {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  overflow-x: auto;
+}
+
+.photo-thumbnail {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 6px;
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.photo-thumbnail.active {
+  opacity: 1;
+  outline: 2px solid #2980b9;
+}
+
+.photo-carousel-placeholder {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #eee;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+}
+
+.photo-count-label {
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 4px;
+}
+
+.info-card-row {
+  display: flex;
+  gap: 12px;
+}
+
+.info-card {
+  flex: 1;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 0.85rem;
+}
+
+.info-card-title {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.info-card-main {
+  font-size: 1rem;
+}
+
+.info-card-sub {
+  color: #777;
+}
+
+.chart-section {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.chart-section-title {
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.chart-label {
+  font-size: 0.8rem;
+  color: #777;
+  margin: 8px 0 2px;
+}
+
+.section-title {
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.timeline-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 10px;
+}
+
+.timeline-time {
+  font-weight: bold;
+  color: #2980b9;
+  flex-shrink: 0;
+  width: 48px;
+}
+
+.timeline-fish-type {
+  font-weight: bold;
+}
+
+.memo-section,
+.advice-section {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.advice-text {
+  background: #f4f9ff;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 0.9rem;
+}
+
+.btn-generate-advice {
+  width: 100%;
+  padding: 10px;
+}
+
+.report-detail-loading {
+  text-align: center;
+  margin-top: 80px;
+}
+
+.error-message {
+  color: #c0392b;
+}

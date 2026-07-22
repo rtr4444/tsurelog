@@ -1,0 +1,52 @@
+.point-edit-container {
+  max-width: 480px;
+  margin: 80px auto 0;
+  padding: 0 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.point-edit-label {
+  font-weight: bold;
+  margin-top: 12px;
+}
+
+.point-edit-input,
+.point-edit-textarea {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.point-edit-section-title {
+  margin-top: 16px;
+}
+
+.point-edit-search-row {
+  display: flex;
+  gap: 8px;
+}
+
+.point-edit-map {
+  margin-top: 8px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.point-edit-resolved-address,
+.point-edit-resolved-latlng {
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.point-edit-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+}
+
+.point-edit-loading {
+  text-align: center;
+  margin-top: 80px;
+}

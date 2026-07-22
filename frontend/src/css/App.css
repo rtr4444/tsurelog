@@ -1,0 +1,106 @@
+/* --- 1. アプリ全体の基本設定 --- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+body {
+  background-color: #f4f7f6;
+  color: #333;
+  min-height: 100vh;
+}
+
+/* --- 2. メニュー画面専用のスタイル --- */
+.menu-container {
+  background: #ffffff;
+  width: 100%;
+  max-width: 480px;
+  margin: 60px auto;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.app-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #1e3d59;
+  margin-bottom: 8px;
+  letter-spacing: 0.05em;
+}
+
+.app-subtitle {
+  font-size: 13px;
+  color: #86939e;
+  margin-bottom: 40px;
+}
+
+/* ボタンメニュー群 */
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 20px 24px;
+  background-color: #f8fafd;
+  border: 2px solid #e8f0fe;
+  border-radius: 12px;
+  color: #1e3d59;
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.menu-btn:hover,
+.menu-btn:active {
+  background-color: #1e3d59;
+  border-color: #1e3d59;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(30, 61, 89, 0.15);
+}
+
+.menu-btn::after {
+  content: '→';
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.menu-btn.view-accent {
+  background-color: #e8f5e9;
+  border-color: #c8e6c9;
+  color: #2e7d32;
+}
+
+.menu-btn.view-accent:hover,
+.menu-btn.view-accent:active {
+  background-color: #2e7d32;
+  border-color: #2e7d32;
+  color: #ffffff;
+}
+
+.menu-footer {
+  margin-top: 48px;
+  font-size: 11px;
+  color: #bcccda;
+}
+
+/* --- 3. 釣果登録画面などの共通コンテナ --- */
+.page-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 24px;
+}
